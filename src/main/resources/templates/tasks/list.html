@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Tasks</title>
+</head>
+<body>
+<h1>Task list</h1>
+<a th:href="@{/tasks/new}">Create task</a>
+<ul>
+    <li th:each="task : ${tasks}">
+        <span th:text="${task.title}">Task title</span>
+        <span th:text="${task.status}">OPEN</span>
+    </li>
+</ul>
+</body>
+</html>
