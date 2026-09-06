@@ -8,10 +8,9 @@ import static org.mockito.Mockito.when;
 import com.papapa.stack.pr_test.task.entity.TaskEntity;
 import com.papapa.stack.pr_test.task.entity.TaskStatus;
 import com.papapa.stack.pr_test.task.logic.TaskCompletionLogic;
-import com.papapa.stack.pr_test.task.logic.TaskCreationLogic;
 import com.papapa.stack.pr_test.task.repository.TaskRepository;
 import com.papapa.stack.pr_test.task.service.TaskNotFoundException;
-import com.papapa.stack.pr_test.task.service.TaskService;
+import com.papapa.stack.pr_test.task.service.TaskCompletionService;
 import java.util.Optional;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -29,7 +28,7 @@ class TaskCompletionServiceTest {
     private TaskCompletionLogic taskCompletionLogic;
 
     @InjectMocks
-    private TaskService taskService;
+    private TaskCompletionService taskService;
 
     @Test
     void completeTask_shouldCompleteAndSaveTask() {
