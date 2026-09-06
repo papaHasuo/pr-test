@@ -1,16 +1,16 @@
-# Stacked PR Experiment
+# Stacked PR実験
 
-This project is a minimal Spring Boot application used to test how stacked PR review flows work for AI-generated changes.
+AIが生成した変更をstacked PRでレビューする流れを検証するための、最小構成のSpring Bootアプリケーションです。
 
-## Project structure
+## プロジェクト構成
 
-- Controller layer: `task.controller`
-- Service layer: `task.service`
-- Logic layer: `task.logic`
-- Entity layer: `task.entity`
-- Repository layer: `task.repository`
+- Controller層: `task.controller`
+- Service層: `task.service`
+- Logic層: `task.logic`
+- Entity層: `task.entity`
+- Repository層: `task.repository`
 
-## Local quick checks
+## ローカルでの確認
 
 ```bash
 docker compose up -d
@@ -19,18 +19,18 @@ docker compose up -d
 docker compose down
 ```
 
-The application and tests use PostgreSQL. The default local connection is
-`jdbc:postgresql://localhost:5432/prtest` with user and password `prtest`.
-These values can be overridden with `SPRING_DATASOURCE_*` environment
-variables.
+アプリケーションとテストはPostgreSQLを使用します。ローカルのデフォルト接続先は
+`jdbc:postgresql://localhost:5432/prtest`、ユーザー名とパスワードは
+`prtest`です。これらの値は`SPRING_DATASOURCE_*`環境変数で変更できます。
 
-See [docs/testing-strategy.md](docs/testing-strategy.md) for the test
-boundaries, local/CI execution policy, and stacked PR review flow.
+[テスト戦略](docs/testing-strategy.md)に、テストの責務、ローカル/CIでの実行方針、
+stacked PRのレビュー手順をまとめています。
 
 ## GitHub Actions
 
-The CI workflow runs the standard Maven test suite on every push and pull request.
+CIワークフローは、すべてのpushとPull Requestで標準のMavenテストを実行します。
 
-## Experiment idea
+## 実験の方針
 
-Use AI to generate a new feature in a small slice, then review the change with stacked PRs while human reviewers check the layering and integration boundaries.
+AIに小さな機能単位の実装を生成させ、stacked PRで変更をレビューします。
+人間のレビュアーは、層の責務分担と統合境界を確認します。

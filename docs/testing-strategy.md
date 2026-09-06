@@ -1,28 +1,28 @@
-# Testing strategy
+# テスト戦略
 
-## Purpose
+## 目的
 
-This project uses PostgreSQL in the application, local development, and CI.
-The goal is to catch both business-rule regressions and integration problems
-while keeping each stacked PR small enough to review.
+このプロジェクトでは、アプリケーション、ローカル開発、CIのすべてでPostgreSQLを使用します。
+stacked PRをレビューしやすい大きさに保ちながら、ビジネスルールの退行と
+統合上の問題を検出することが目的です。
 
-## Test layers
+## テストの層
 
-| Test | What it protects | Current state | Where to run |
+| テスト | 保証する内容 | 現在の状態 | 実行場所 |
 | --- | --- | --- | --- |
-| Logic unit test | Pure state and input rules | No dedicated Logic test exists yet | Local, every PR |
-| Service unit test | Use-case orchestration and repository interactions | `TaskServiceTest` covers part of creation behavior; repository-backed cases should be expanded | Local, every PR |
-| Controller test | Request mapping, redirect, and model contract | `TaskControllerTest` covers the list view contract | Local, every PR |
-| Spring context/integration test | Wiring, JPA mappings, and PostgreSQL compatibility | `PrTestApplicationTests` starts the full application context | Local with PostgreSQL, every PR |
-| Browser or full flow test | User-visible task flow | Not added yet; add only when UI behavior becomes the experiment target | CI initially, local when debugging |
+| Logic単体テスト | 状態遷移と入力ルール | 専用テストはまだない | ローカル、すべてのPR |
+| Service単体テスト | ユースケースの制御とRepository連携 | `TaskServiceTest`が作成処理の一部を検証。Repositoryを使うケースは拡充予定 | ローカル、すべてのPR |
+| Controllerテスト | リクエストマッピング、リダイレクト、Modelの契約 | `TaskControllerTest`が一覧画面の契約を検証 | ローカル、すべてのPR |
+| Springコンテキスト/統合テスト | Bean構成、JPAマッピング、PostgreSQL互換性 | `PrTestApplicationTests`がアプリケーション全体のコンテキストを起動 | PostgreSQL上でローカル、すべてのPR |
+| ブラウザ/一連のフローテスト | ユーザーから見たタスク操作 | まだ未導入。UI動作が実験対象になった時点で追加 | 当初はCI中心、デバッグ時はローカル |
 
-Tests should verify behavior at the narrowest layer that can express it.
-The full context test is not a substitute for unit tests, and unit tests are
-not a substitute for the PostgreSQL-backed context test.
+テストは、その振る舞いを表現できる最も狭い層で検証します。
+アプリケーション全体のコンテキストテストは単体テストの代わりにはならず、
+単体テストもPostgreSQLを使うコンテキストテストの代わりにはなりません。
 
-## Local workflow
+## ローカルでの実行
 
-Start the same database type used by the application and CI:
+アプリケーションとCIで使うものと同じデータベースを起動します。
 
 ```bash
 docker compose up -d
@@ -31,45 +31,47 @@ docker compose up -d
 docker compose down
 ```
 
-The default connection is `prtest` / `prtest` on `localhost:5432`. Override it
-with `SPRING_DATASOURCE_URL`, `SPRING_DATASOURCE_USERNAME`, and
-`SPRING_DATASOURCE_PASSWORD` when needed.
+デフォルトの接続先は`localhost:5432`の`prtest`データベースで、
+ユーザー名とパスワードも`prtest`です。必要に応じて
+`SPRING_DATASOURCE_URL`、`SPRING_DATASOURCE_USERNAME`、
+`SPRING_DATASOURCE_PASSWORD`で上書きします。
 
-For fast feedback, run a focused test while iterating:
+実装中は、フィードバックを速くするため対象テストだけを実行できます。
 
 ```bash
 ./mvnw -Dtest=TaskServiceTest test
 ```
 
-Before opening or updating a PR, run the complete `./mvnw test` suite.
+PRを作成・更新する前には、`./mvnw test`で全テストを実行します。
 
-## CI workflow
+## CIでの実行
 
-GitHub Actions starts PostgreSQL 16 as a service container, waits for its
-health check, and runs the same Maven test command as local development.
-This makes a green CI result meaningful for JPA mappings and database
-behavior, not just Java compilation.
+GitHub ActionsはPostgreSQL 16をサービスコンテナとして起動し、
+ヘルスチェックを待ってから、ローカルと同じMavenテストを実行します。
+これにより、CIの成功はJavaのコンパイルだけでなく、JPAマッピングや
+データベースの振る舞いも確認できたことを意味します。
 
-CI should remain deterministic and should not depend on a developer's local
-database or uncommitted schema changes.
+CIは決定的に実行できるようにし、開発者のローカルデータベースや
+未コミットのスキーマ変更に依存させません。
 
-## Stacked PR workflow
+## Stacked PRの進め方
 
-Each PR should keep its own tests green:
+各PRでテストが成功する状態を維持します。
 
-1. Domain/Logic PR: add transition rules and unit tests.
-2. Service PR: add persistence orchestration and repository-backed tests.
-3. Controller PR: add endpoint and controller tests.
-4. UI PR: add the user-visible operation and a flow-level test if needed.
+1. Domain/Logic PR: 状態遷移ルールと単体テストを追加する。
+2. Service PR: 永続化を含むユースケースとRepository連携テストを追加する。
+3. Controller PR: エンドポイントとControllerテストを追加する。
+4. UI PR: ユーザー操作を追加し、必要なら一連のフローテストを追加する。
 
-The PR body should state its base branch, parent PR, test command, and any
-known limitation. Reviewers should merge from the bottom of the stack upward.
-If a lower PR changes a contract, rebase the descendants, update their tests,
-and rerun the full suite before asking for review again.
+PR本文には、ベースブランチ、親PR、実行したテストコマンド、
+既知の制約を記載します。レビュアーはstackの下位から順にマージします。
+下位PRが契約を変更した場合は、後続PRをrebaseし、テストを更新してから
+全テストを再実行し、再レビューを依頼します。
 
-## Recommended CI evolution
+## 今後のCI拡張
 
-Start with one required `mvnw test` job. Split jobs only when runtime or
-failure ownership becomes a problem. Add a separate browser test job after
-the first UI flow exists; adding a browser framework before that point would
-increase maintenance without improving this experiment.
+まずは必須の`mvnw test`ジョブを1つ用意します。実行時間や失敗箇所の
+切り分けが問題になった段階でジョブを分割します。
+ブラウザテストは最初のUIフローができてから別ジョブとして追加します。
+それより前にブラウザテスト基盤を導入すると、この実験の価値を高める前に
+保守コストが増えるためです。
