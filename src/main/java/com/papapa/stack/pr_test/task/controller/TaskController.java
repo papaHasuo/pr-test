@@ -42,7 +42,8 @@ public class TaskController {
     }
 
     @GetMapping("/new")
-    public String showCreateForm() {
+    public String showCreateForm(Model model) {
+        model.addAttribute("editMode", false);
         return "tasks/form";
     }
 
