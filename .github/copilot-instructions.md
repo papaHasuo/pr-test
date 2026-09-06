@@ -22,6 +22,13 @@
 - PR本文に、親PR、ベースブランチ、実行したテスト、既知の制約を記載する。
 - 下位PRの契約を変更した場合は、後続PRをrebaseしてテストを更新する。
 - 各PRでCIが成功する状態を維持し、下位PRから順にレビュー・マージする。
+- 各層の実装後にAIレビューを実施し、結果をPRコメントへ記録する。
+- AIレビューの指摘はBlockingと人間レビューで確認する事項に分類する。
+- Blocking指摘は修正して再レビューする。Blockingがなければ人間の最終判断を待たずに次層へ進む。
+- 次層へ進む場合も、人間レビューで確認したい事項はPRコメントに残す。
+- 下位層の契約を変更した場合は、後続PRをrebaseし、影響するテストとAIレビューを再実行する。
 
 テストの責務とローカル/CIでの使い分けは
 [`docs/testing-strategy.md`](../docs/testing-strategy.md)を参照する。
+Stacked PRの詳細な運用手順は
+[`docs/stacked-pr-workflow.md`](../docs/stacked-pr-workflow.md)を参照する。
