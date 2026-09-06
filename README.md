@@ -25,6 +25,8 @@ docker compose down
 
 [テスト戦略](docs/testing-strategy.md)に、テストの責務、ローカル/CIでの実行方針、
 stacked PRのレビュー手順をまとめています。
+Stacked PRのAIレビュー、次層への進行条件、rebase方針は
+[Stacked PR運用ガイド](docs/stacked-pr-workflow.md)を参照してください。
 
 ## GitHub Actions
 
