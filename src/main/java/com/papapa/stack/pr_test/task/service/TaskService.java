@@ -13,29 +13,19 @@ public class TaskService {
     private final TaskCreationLogic taskCreationLogic;
     private final TaskRepository taskRepository;
 
-    public TaskService(TaskCreationLogic taskCreationLogic) {
-        this(taskCreationLogic, null);
-    }
-
-    @org.springframework.beans.factory.annotation.Autowired
-    public TaskService(TaskCreationLogic taskCreationLogic, TaskRepository taskRepository) {
+    public TaskService(TaskCreationLogic taskCreationLogic,
+                       TaskRepository taskRepository) {
         this.taskCreationLogic = taskCreationLogic;
         this.taskRepository = taskRepository;
     }
 
     public List<TaskEntity> findAll() {
-        if (taskRepository == null) {
-            return List.of();
-        }
         return taskRepository.findAll();
     }
 
     public TaskEntity createTask(String title, String description) {
         TaskEntity task = taskCreationLogic.create(title, description);
         task.setStatus(TaskStatus.OPEN);
-        if (taskRepository == null) {
-            return task;
-        }
         return taskRepository.save(task);
     }
 }
