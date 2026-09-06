@@ -64,4 +64,30 @@ class TaskCompletionUiTest {
         assertThat(listAfterCompletion.getResponse().getContentAsString())
                 .contains("Buy milk");
     }
+
+    @Test
+    void inProgressTask_shouldBeDisplayedAndCanBeCompleted() throws Exception {
+        TaskEntity task = taskRepository.save(
+                new TaskEntity(null, "Prepare report", null, TaskStatus.IN_PROGRESS));
+
+        mockMvc.perform(get("/tasks"))
+                .andExpect(status().isOk())
+                .andExpect(view().name("tasks/list"))
+                .andExpect(result -> assertThat(result.getResponse().getContentAsString())
+                        .contains("Prepare report")
+                        .contains("IN_PROGRESS")
+                        .contains("action=\"/tasks/" + task.getId() + "/complete\""));
+
+        mockMvc.perform(post("/tasks/{taskId}/complete", task.getId()))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/tasks"));
+
+        mockMvc.perform(get("/tasks"))
+                .andExpect(status().isOk())
+                .andExpect(view().name("tasks/list"))
+                .andExpect(result -> assertThat(result.getResponse().getContentAsString())
+                        .contains("Prepare report")
+                        .contains("DONE")
+                        .doesNotContain("action=\"/tasks/" + task.getId() + "/complete\""));
+    }
 }
