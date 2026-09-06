@@ -23,6 +23,14 @@ docker compose down
 `jdbc:postgresql://localhost:5432/prtest`、ユーザー名とパスワードは
 `prtest`です。これらの値は`SPRING_DATASOURCE_*`環境変数で変更できます。
 
+ブラウザを使ったE2Eテストは、PostgreSQLを起動した状態で次のコマンドを実行します。
+初回またはPlaywrightのバージョン更新時には、先にChromiumをインストールします。
+
+```bash
+./mvnw test-compile exec:java -Dexec.classpathScope=test -Dexec.mainClass=com.microsoft.playwright.CLI -Dexec.args="install chromium"
+./mvnw -Pe2e verify
+```
+
 [テスト戦略](docs/testing-strategy.md)に、テストの責務、ローカル/CIでの実行方針、
 stacked PRのレビュー手順をまとめています。
 

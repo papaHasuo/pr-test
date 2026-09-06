@@ -39,3 +39,40 @@ jobs:
 
       - name: Run tests
         run: ./mvnw test
+
+  browser-e2e:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_DB: prtest
+          POSTGRES_USER: prtest
+          POSTGRES_PASSWORD: prtest
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U prtest -d prtest"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    env:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://localhost:5432/prtest
+      SPRING_DATASOURCE_USERNAME: prtest
+      SPRING_DATASOURCE_PASSWORD: prtest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+          cache: maven
+
+      - name: Install Playwright Chromium
+        run: ./mvnw test-compile exec:java -Dexec.classpathScope=test -Dexec.mainClass=com.microsoft.playwright.CLI -Dexec.args="install chromium"
+
+      - name: Run browser E2E tests
+        run: ./mvnw -Pe2e verify

@@ -15,7 +15,7 @@ stacked PRをレビューしやすい大きさに保ちながら、ビジネス�
 | Controllerテスト | リクエストマッピング、リダイレクト、Modelの契約 | `TaskControllerTest`が一覧画面の契約を検証 | ローカル、すべてのPR |
 | Springコンテキスト/統合テスト | Bean構成、JPAマッピング、PostgreSQL互換性 | `PrTestApplicationTests`がアプリケーション全体のコンテキストを起動 | PostgreSQL上でローカル、すべてのPR |
 | HTTP/Thymeleaf統合テスト | HTTPからController、Service、DB、HTML生成までの契約 | UI変更時に追加 | PostgreSQL上でローカル、すべてのPR |
-| ブラウザ/一連のE2Eテスト | ユーザーから見たタスク操作 | 別Sub-Issueで追加予定 | UI変更時とmainへのマージ時 |
+| ブラウザ/一連のE2Eテスト | ユーザーから見たタスク操作 | `TaskCompletionE2ETest`がPlaywrightとChromiumで完了フローを検証 | UI変更時とmainへのマージ時 |
 
 テストは、その振る舞いを表現できる最も狭い層で検証します。
 アプリケーション全体のコンテキストテストは単体テストの代わりにはならず、
@@ -44,6 +44,14 @@ docker compose down
 ```
 
 PRを作成・更新する前には、`./mvnw test`で全テストを実行します。
+
+ブラウザE2Eテストを実行する場合は、PostgreSQLを起動した状態で専用プロファイルを使用します。
+初回またはPlaywrightのバージョン更新時には、先にChromiumをインストールします。
+
+```bash
+./mvnw test-compile exec:java -Dexec.classpathScope=test -Dexec.mainClass=com.microsoft.playwright.CLI -Dexec.args="install chromium"
+./mvnw -Pe2e verify
+```
 
 ## AI実装時のテスト手順
 
@@ -76,7 +84,8 @@ GitHub ActionsはPostgreSQL 16をサービスコンテナとして起動し、
 データベースの振る舞いも確認できたことを意味します。
 
 CIは決定的に実行できるようにし、開発者のローカルデータベースや
-未コミットのスキーマ変更に依存させません。
+未コミットのスキーマ変更に依存させません。通常のMavenテストとは別に、
+ブラウザE2E用のジョブを用意し、PostgreSQLとChromiumを起動して実行します。
 
 ## Stacked PRの進め方
 
@@ -95,8 +104,7 @@ PR本文には、ベースブランチ、親PR、実行したテストコマン�
 
 ## 今後のCI拡張
 
-まずは必須の`mvnw test`ジョブを1つ用意します。実行時間や失敗箇所の
-切り分けが問題になった段階でジョブを分割します。
-ブラウザテストは最初のUIフローができてから別ジョブとして追加します。
-それより前にブラウザテスト基盤を導入すると、この実験の価値を高める前に
-保守コストが増えるためです。
+通常の`mvnw test`とブラウザE2Eを別ジョブで実行します。E2Eは実ブラウザを
+起動するため、通常のテストより時間がかかる可能性がありますが、UIの重要な
+ユーザーシナリオを変更したPRでは実行結果を確認します。CIではE2Eジョブの
+中でPlaywrightのChromiumをインストールしてから専用プロファイルを実行します。
