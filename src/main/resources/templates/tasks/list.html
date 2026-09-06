@@ -11,6 +11,9 @@
     <li th:each="task : ${tasks}">
         <span th:text="${task.title}">Task title</span>
         <span th:text="${task.status}">OPEN</span>
+        <span th:if="${task.description != null}" th:text="${task.description}">Description</span>
+        <a th:if="${task.status.name() != 'DONE'}"
+           th:href="@{/tasks/{taskId}/edit(taskId=${task.id})}">Edit</a>
         <form th:if="${task.status.name() != 'DONE'}"
               th:action="@{/tasks/{taskId}/complete(taskId=${task.id})}"
               method="post">
