@@ -14,7 +14,8 @@ stacked PRをレビューしやすい大きさに保ちながら、ビジネス�
 | Service単体テスト | ユースケースの制御とRepository連携 | `TaskServiceTest`が作成処理の一部を検証。Repositoryを使うケースは拡充予定 | ローカル、すべてのPR |
 | Controllerテスト | リクエストマッピング、リダイレクト、Modelの契約 | `TaskControllerTest`が一覧画面の契約を検証 | ローカル、すべてのPR |
 | Springコンテキスト/統合テスト | Bean構成、JPAマッピング、PostgreSQL互換性 | `PrTestApplicationTests`がアプリケーション全体のコンテキストを起動 | PostgreSQL上でローカル、すべてのPR |
-| ブラウザ/一連のフローテスト | ユーザーから見たタスク操作 | まだ未導入。UI動作が実験対象になった時点で追加 | 当初はCI中心、デバッグ時はローカル |
+| HTTP/Thymeleaf統合テスト | HTTPからController、Service、DB、HTML生成までの契約 | UI変更時に追加 | PostgreSQL上でローカル、すべてのPR |
+| ブラウザ/一連のE2Eテスト | ユーザーから見たタスク操作 | 別Sub-Issueで追加予定 | UI変更時とmainへのマージ時 |
 
 テストは、その振る舞いを表現できる最も狭い層で検証します。
 アプリケーション全体のコンテキストテストは単体テストの代わりにはならず、
@@ -84,7 +85,8 @@ CIは決定的に実行できるようにし、開発者のローカルデータ
 1. Domain/Logic PR: 状態遷移ルールと単体テストを追加する。
 2. Service PR: 永続化を含むユースケースとRepository連携テストを追加する。
 3. Controller PR: エンドポイントとControllerテストを追加する。
-4. UI PR: ユーザー操作を追加し、必要なら一連のフローテストを追加する。
+4. UI PR: ユーザー操作とHTTP/Thymeleaf統合テストを追加する。
+5. E2E用Sub-Issue: 重要なユーザーシナリオをブラウザで検証する。
 
 PR本文には、ベースブランチ、親PR、実行したテストコマンド、
 既知の制約を記載します。レビュアーはstackの下位から順にマージします。

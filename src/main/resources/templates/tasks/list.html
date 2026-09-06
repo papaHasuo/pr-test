@@ -11,6 +11,11 @@
     <li th:each="task : ${tasks}">
         <span th:text="${task.title}">Task title</span>
         <span th:text="${task.status}">OPEN</span>
+        <form th:if="${task.status.name() != 'DONE'}"
+              th:action="@{/tasks/{taskId}/complete(taskId=${task.id})}"
+              method="post">
+            <button type="submit">Complete</button>
+        </form>
     </li>
 </ul>
 </body>
