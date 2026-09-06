@@ -1,0 +1,14 @@
+services:
+  postgres:
+    image: postgres:16
+    environment:
+      POSTGRES_DB: prtest
+      POSTGRES_USER: prtest
+      POSTGRES_PASSWORD: prtest
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U prtest -d prtest"]
+      interval: 10s
+      timeout: 5s
+      retries: 5

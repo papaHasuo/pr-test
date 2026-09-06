@@ -8,6 +8,24 @@ on:
 jobs:
   local-fast-check:
     runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_DB: prtest
+          POSTGRES_USER: prtest
+          POSTGRES_PASSWORD: prtest
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U prtest -d prtest"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    env:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://localhost:5432/prtest
+      SPRING_DATASOURCE_USERNAME: prtest
+      SPRING_DATASOURCE_PASSWORD: prtest
     steps:
       - name: Checkout
         uses: actions/checkout@v4
